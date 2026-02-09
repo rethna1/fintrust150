@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SIP Calculator – FinTrust Creations</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8;font-family:Arial}
+.app{max-width:520px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.input{width:100%;height:44px;margin-bottom:12px;font-size:16px;padding:10px;border-radius:8px;border:1px solid #ddd}
+.calc-btn{width:100%;height:46px;border:none;border-radius:10px;font-size:16px;font-weight:700;margin-top:6px;color:#fff;background:#0a8f6a}
+.reset-btn{background:#777}
+.result{display:none;margin-top:18px;background:#e7f7f2;padding:14px;border-radius:12px}
+.table-header,.table-row{display:grid;grid-template-columns:1fr 1.6fr 1.6fr;padding:8px 10px}
+.table-header{background:#0a8f6a;color:#fff;font-weight:700}
+.table-row{border-bottom:1px solid #ddd}
+.share-btn{display:none;width:100%;height:44px;border:none;border-radius:10px;color:#fff;font-weight:700;margin-top:10px}
+.whatsapp{background:#25D366}
+.email{background:#1976D2}
+.footer{text-align:center;font-size:12px;color:#777;margin-top:28px}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<div class="card">
+<h2 style="text-align:center">Systematic Investment Plan (SIP)</h2>
+
+<input id="sipAmount" class="input" type="number" placeholder="Monthly Investment (₹)">
+<input id="returnRate" class="input" type="number" placeholder="Expected Annual Return (%)">
+<input id="years" class="input" type="number" placeholder="Investment Period (Years)">
+
+<button type="button" class="calc-btn" onclick="calculateSIP()">Calculate SIP</button>
+<button type="button" class="calc-btn reset-btn" onclick="resetSIP()">Replace / Reset</button>
+
+<div id="result" class="result">
+<p><strong>Total Invested:</strong> ₹ <span id="totalInvested"></span></p>
+<p><strong>Maturity Value:</strong> ₹ <span id="maturityValue"></span></p>
+
+<div class="table-header">
+<span>Year</span><span>Total Invested</span><span>Corpus Value</span>
+</div>
+<div id="yearTable"></div>
+
+<button id="waBtn" class="share-btn whatsapp" onclick="shareWhatsApp()">📤 Share on WhatsApp</button>
+<button id="mailBtn" class="share-btn email" onclick="shareEmail()">📧 Share via Email</button>
+</div>
+</div>
+
+<div class="footer">© FinTrust MF Distribution</div>
+</div>
+
+<script>
+const sipInput = document.getElementById("sipAmount");
+const returnRateInput = document.getElementById("returnRate");
+const yearsInput = document.getElementById("years");
+
+const yearTable = document.getElementById("yearTable");
+const totalInvestedSpan = document.getElementById("totalInvested");
+const maturityValueSpan = document.getElementById("maturityValue");
+const result = document.getElementById("result");
+const waBtn = document.getElementById("waBtn");
+const mailBtn = document.getElementById("mailBtn");
+
+let shareText = "";
+
+function rs(v){
+  return "Rs. " + Math.round(v).toLocaleString("en-IN");
+}
+
+function calculateSIP(){
+  let sip = +sipInput.value;
+  let rate = +returnRateInput.value / 100 / 12;
+  let years = +yearsInput.value;
+
+  if(!sip || !rate || !years){
+    alert("Please fill all fields");
+    return;
+  }
+
+  let totalMonths = years * 12;
+  let corpus = 0;
+  let totalInvested = 0;
+  let html = "";
+  let text = "";
+
+  for(let y=1;y<=years;y++){
+    for(let m=1;m<=12;m++){
+      corpus = (corpus + sip) * (1 + rate);
+      totalInvested += sip;
+    }
+
+    html += `
+    <div class="table-row">
+      <span>${y}</span>
+      <span>${totalInvested.toLocaleString("en-IN")}</span>
+      <span>${Math.round(corpus).toLocaleString("en-IN")}</span>
+    </div>`;
+
+    text += `Year ${y}\nInvested: ${rs(totalInvested)}\nValue: ${rs(corpus)}\n\n`;
+  }
+
+  yearTable.innerHTML = html;
+  totalInvestedSpan.innerText = totalInvested.toLocaleString("en-IN");
+  maturityValueSpan.innerText = Math.round(corpus).toLocaleString("en-IN");
+  result.style.display="block";
+
+  shareText =
+`📈 Systematic Investment Plan (SIP)
+
+Monthly Investment: ${rs(sip)}
+Period: ${years} Years
+Expected Return: ${returnRateInput.value}%
+
+Total Invested: ${rs(totalInvested)}
+Maturity Value: ${rs(corpus)}
+
+${text}
+FinTrust Creations`;
+
+  waBtn.style.display = mailBtn.style.display = "block";
+}
+
+function resetSIP(){
+  sipInput.value = "";
+  returnRateInput.value = "";
+  yearsInput.value = "";
+  result.style.display="none";
+  yearTable.innerHTML="";
+  waBtn.style.display = mailBtn.style.display = "none";
+}
+
+function shareWhatsApp(){
+  window.open("https://wa.me/?text="+encodeURIComponent(shareText));
+}
+function shareEmail(){
+  location.href="mailto:fintrustcreations@gmail.com?subject=SIP Result&body="+encodeURIComponent(shareText);
+}
+</script>
+
+<!-- BACK BUTTON - LEFT ARROW (Same style as scroll top) -->
+<style>
+#backBtn {
+  position: fixed;
+  left: 20px;
+  bottom: 25px;
+  width: 55px;
+  height: 55px;
+  background-color: #f2f2f2;  /* off-white */
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+#backBtn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #000000;      /* BLACK arrow */
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Hover effect */
+#backBtn:hover {
+  background-color: #e6e6e6;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+</style>
+
+<a href="main-landing-page.html" id="backBtn" title="Back">
+  <svg viewBox="0 0 24 24">
+    <!-- LEFT POINTING ARROW (same style as scroll button) -->
+    <path d="M15 6l-6 6 6 6" />
+  </svg>
+</a>
+
+</body>
+</html>
